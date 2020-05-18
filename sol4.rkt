@@ -20,10 +20,29 @@
         [right (car(cdr(cdr bst)))])
     (if (null? root)
         '()
+        (list (f root) (apply f left) (apply f right)))))
+
+(define (addlist bst)
+  (let ([root (car bst)]
+        [left (car(cdr bst))]
+        [right (car(cdr(cdr bst)))])
+    (if (null? root)
+        '()
         (if (and (null? left) (null? right))
-            (list (f (root)) '() '())
+            (list root)
             (if (and (null? right) (not (null? left)))
-                (list (f (root)) (apply f (left)) '())
-                (if (and (null? right) (not (null? left)))
-                    (list (f (root)) '() (apply f (right)))
-                    (list (f (root)) (apply f (left)) (apply f (right)))))))))
+                (append (list root) (addlist left))
+                (if (and (not(null? right)) (null? left))
+                    (append (list root) (addlist right))
+                    (append (list root) (addlist left) (addlist right))))))))
+
+(define (equals bef aft)
+  (let ([left (addlist bef)]
+        [right (addlist aft)])
+    (if (not(= (length left) (length right)))
+        #f
+        (for/and ([i left])
+          (for/or ([j right])
+            (if (= i j)
+                #t
+                #f))))))
